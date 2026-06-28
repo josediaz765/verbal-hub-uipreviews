@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbal Hub - UI Previews Gallery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: white;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateY(-3px);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .preview-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out;
+            cursor: pointer;
+        }
+
+        .preview-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-image-wrapper {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .preview-card:hover .preview-image {
+            transform: scale(1.05);
+        }
+
+        .preview-info {
+            padding: 20px;
+        }
+
+        .preview-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #302b63;
+            margin-bottom: 12px;
+            word-break: break-word;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .preview-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .preview-btn-view {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .preview-btn-view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-btn-download {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .preview-btn-download:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            animation: zoomIn 0.3s ease;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats h2 {
+            color: #302b63;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin: 0 30px;
+            color: #667eea;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .search-box::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                max-width: 100%;
+            }
+
+            .stat-item {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Verbal Hub</h1>
+            <p>UI Previews Gallery</p>
+        </div>
+
+        <div class="controls">
+            <input type="text" class="search-box" id="searchInput" placeholder="🔍 Search previews...">
+            <button class="btn btn-primary" onclick="downloadAll()">⬇️ Download All</button>
+            <button class="btn btn-secondary" onclick="filterAll()">Show All</button>
+        </div>
+
+        <div class="stats">
+            <h2>Gallery Statistics</h2>
+            <div class="stat-item">Total: <span id="totalCount">0</span></div>
+            <div class="stat-item">Displayed: <span id="displayedCount">0</span></div>
+        </div>
+
+        <div class="gallery" id="gallery"></div>
+
+        <div class="footer">
+            <p>Made with ❤️ | <a href="https://github.com/josediaz765/verbal-hub-uipreviews" target="_blank">View on GitHub</a></p>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <img class="modal-image" id="modalImage" src="" alt="">
+        </div>
+    </div>
+
+    <script>
+        const images = [
+            { name: 'Preview 1', path: 'image%20(4).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(4).webp' },
+            { name: 'Preview 2', path: 'image%20(5).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(5).webp' },
+            { name: 'Preview 3', path: 'image%20(6).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(6).webp' },
+            { name: 'Preview 4', path: 'image%20(7).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(7).webp' },
+            { name: 'Preview 5', path: 'image%20(8).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(8).webp' },
+            { name: 'Preview 6', path: 'image%20(9).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(9).webp' },
+            { name: 'Preview 7', path: 'image%20(10).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(10).webp' },
+            { name: 'Preview 8', path: 'image%20(11).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(11).webp' },
+            { name: 'Preview 9', path: 'image%20(12).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(12).webp' },
+            { name: 'Preview 10', path: 'image%20(13).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(13).webp' },
+            { name: 'Preview 11', path: 'image%20(14).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(14).webp' },
+            { name: 'Preview 12', path: 'image%20(15).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(15).webp' },
+            { name: 'Preview 13', path: 'image%20(16).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(16).webp' },
+            { name: 'Preview 14', path: 'image%20(17).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(17).webp' },
+            { name: 'Preview 15', path: 'image%20(18).webp', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/image%20(18).webp' },
+            { name: 'Download', path: 'download.png', url: 'https://raw.githubusercontent.com/josediaz765/verbal-hub-uipreviews/main/download.png' }
+        ];
+
+        const gallery = document.getElementById('gallery');
+        const searchInput = document.getElementById('searchInput');
+        const totalCount = document.getElementById('totalCount');
+        const displayedCount = document.getElementById('displayedCount');
+
+        function renderGallery(filter = '') {
+            gallery.innerHTML = '';
+            let displayed = 0;
+
+            images.forEach((img, index) => {
+                if (filter === '' || img.name.toLowerCase().includes(filter.toLowerCase())) {
+                    const card = document.createElement('div');
+                    card.className = 'preview-card';
+                    card.innerHTML = `
+                        <div class="preview-image-wrapper" onclick="openModal('${img.url}', '${img.name}')">
+                            <img class="preview-image" src="${img.url}" alt="${img.name}" loading="lazy">
+                        </div>
+                        <div class="preview-info">
+                            <div class="preview-title">${img.name}</div>
+                            <div class="preview-actions">
+                                <button class="preview-btn preview-btn-view" onclick="openModal('${img.url}', '${img.name}')">View</button>
+                                <button class="preview-btn preview-btn-download" onclick="downloadImage('${img.url}', '${img.name}')">Download</button>
+                            </div>
+                        </div>
+                    `;
+                    gallery.appendChild(card);
+                    displayed++;
+                }
+            });
+
+            totalCount.textContent = images.length;
+            displayedCount.textContent = displayed;
+        }
+
+        function openModal(url, name) {
+            const modal = document.getElementById('modal');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = url;
+            modalImage.alt = name;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+        }
+
+        function downloadImage(url, name) {
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            a.click();
+        }
+
+        function downloadAll() {
+            images.forEach((img, index) => {
+                setTimeout(() => {
+                    downloadImage(img.url, img.name);
+                }, index * 200);
+            });
+        }
+
+        function filterAll() {
+            searchInput.value = '';
+            renderGallery('');
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            renderGallery(e.target.value);
+        });
+
+        document.getElementById('modal').addEventListener('click', (e) => {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        });
+
+        // Initial render
+        renderGallery();
+    </script>
+</body>
+</html>
